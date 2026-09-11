@@ -594,6 +594,13 @@
  return blendColors((period.participants||[]).map(function(n){ return participantColor(period, n); }));
  }
 
+ function dateColor(d){
+ var s = d.id || (d.date + '_' + d.startHour);
+ var h = 0;
+ for(var i=0;i<s.length;i++){ h = (h*31 + s.charCodeAt(i)) % 360; }
+ return 'hsl('+h+', 68%, 88%)';
+ }
+
  function load(){
  try{ me = JSON.parse(localStorage.getItem(LS_ME)) || null; }catch(e){ me = null; }
  try{ state = JSON.parse(localStorage.getItem(LS_STATE)) || emptyState(); }catch(e){ state = emptyState(); }
@@ -1370,7 +1377,7 @@
  var ideaIds = d.ideaIds || (d.ideaId ? [d.ideaId] : []);
  var ideaTitles = ideaIds.map(function(iid){ var i = state.ideas.find(function(x){ return x.id===iid; }); return i ? i.title : null; }).filter(Boolean);
  var displayTitle = d.title || (ideaTitles.length ? ideaTitles.join(' + ') : 'Open plan');
- return '<div class="card">'+
+ return '<div class="card" style="background:'+dateColor(d)+'">'+
  '<div class="main">'+
  '<div class="when">'+fmtDate(d.date)+' · '+fmtHourRange(d.startHour,d.endHour)+'</div>'+
  '<div class="title">'+escapeHtml(displayTitle)+'</div>'+
