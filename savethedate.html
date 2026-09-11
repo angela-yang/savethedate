@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Save the Date</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink: #1B2138;
+    --ink-2: #232B49;
+    --ink-3: #2C355A;
+    --paper: #FBF7F0;
+    --paper-dim: #EFE7D8;
+    --text: #ECE9E0;
+    --text-dim: #A6ACCB;
+    --text-faint: #767CA0;
+    --text-ink: #22283B;
+    --text-ink-dim: #6A6F87;
+    --line: rgba(255,255,255,0.10);
+    --line-strong: rgba(255,255,255,0.20);
+    --accent: #7C93E8;
+    --accent-soft: rgba(124,147,232,0.28);
+    --danger: #E2637A;
+    --bat: #8B6FD9;
+    --ant: #D8703A;
+    --radius-s: 7px;
+    --radius-m: 11px;
+    --radius-l: 17px;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--ink);
+    color:var(--text);
+    font-family:'Ubuntu', sans-serif;
+    font-size:19px;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Ubuntu', sans-serif;
+    font-weight:700;
+    letter-spacing:-0.01em;
+  }
+  button{font-family:inherit;}
+  .app{
+    max-width:1080px;
+    margin:0 auto;
+    padding:30px 20px 90px;
+  }
+  .app-header{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:24px;
+    flex-wrap:wrap;
+  }
+  .app-title{
+    font-size:42px;
+    margin:0;
+    color:var(--paper);
+  }
+  .who-am-i{
+    font-size:16px;
+    color:var(--text-dim);
+    display:flex;
+    align-items:center;
+    gap:9px;
+    font-weight:500;
+  }
+  .who-am-i .swatch{
+    width:13px;height:13px;border-radius:4px;
+  }
+  .who-am-i button{
+    background:none;border:none;color:var(--text-faint);
+    text-decoration:underline;cursor:pointer;font-size:15px;padding:0;
+    font-family:inherit;
+  }
+  .periods-bar{ margin-bottom:24px; }
+  .periods-bar .label{
+    font-size:12.5px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--text-faint);
+    margin-bottom:9px;
+    font-weight:700;
+  }
+  .chip-row{
+    display:flex;
+    gap:9px;
+    overflow-x:auto;
+    padding-bottom:4px;
+  }
+  .chip{
+    background:var(--ink-2);
+    border:1.5px solid var(--line);
+    border-radius:999px;
+    padding:10px 9px 10px 17px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    white-space:nowrap;
+    cursor:pointer;
+    font-size:15.5px;
+    color:var(--text-dim);
+    flex:none;
+  }
+  .chip:hover{border-color:var(--line-strong);}
+  .chip.active{
+    background:var(--accent-soft);
+    border-color:var(--accent);
+    color:var(--paper);
+  }
+  .chip .chip-name{font-weight:700;}
+  .chip .chip-meta{font-size:13.5px; color:var(--text-faint);}
+  .chip.active .chip-meta{color:var(--text-dim);}
+  .chip .edit-pencil{
+    background:none;border:none;cursor:pointer;
+    color:inherit; opacity:0.6; font-size:14px;
+    padding:2px 6px; border-radius:50%;
+  }
+  .chip .edit-pencil:hover{opacity:1; background:rgba(255,255,255,0.12);}
+  .chip-add{
+    background:none;
+    border:1.5px dashed var(--line-strong);
+    color:var(--text-dim);
+    font-weight:700;
+  }
+  .chip-add:hover{border-color:var(--accent); color:var(--paper);}
+  .btn{
+    border-radius:999px;
+    border:1.5px solid var(--line-strong);
+    background:transparent;
+    color:var(--text);
+    padding:11px 18px;
+    font-size:15.5px;
+    font-weight:700;
+    cursor:pointer;
+    transition:background .15s ease, border-color .15s ease, transform .1s ease;
+    white-space:nowrap;
+  }
+  .btn:hover{background:rgba(255,255,255,0.06);}
+  .btn:active{transform:scale(0.98);}
+  .btn-accent{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#1B2138;
+  }
+  .btn-accent:hover{background:#8FA3EE;}
+  .btn-ghost{border-color:transparent;color:var(--text-dim);}
+  .btn-danger{border-color:rgba(226,99,122,0.5); color:var(--danger);}
+  .btn-danger:hover{background:rgba(226,99,122,0.1);}
+  .btn-sm{padding:7px 13px;font-size:14.5px;}
+  .tabs{
+    display:flex;
+    gap:6px;
+    margin-bottom:24px;
+    border-bottom:1px solid var(--line);
+  }
+  .tab{
+    background:none;
+    border:none;
+    color:var(--text-faint);
+    font-size:17.5px;
+    font-weight:700;
+    padding:11px 4px;
+    margin-right:24px;
+    cursor:pointer;
+    position:relative;
+    top:1px;
+  }
+  .tab.active{color:var(--paper);}
+  .tab.active::after{
+    content:'';
+    position:absolute;
+    left:0;right:0;bottom:-1px;
+    height:2.5px;
+    background:var(--accent);
+    border-radius:2px;
+  }
+  .tab .count{
+    color:var(--text-faint);
+    font-weight:500;
+    font-size:14.5px;
+  }
+  .panel{display:none;}
+  .panel.active{display:block;}
+  .empty-state{
+    border:1.5px dashed var(--line-strong);
+    border-radius:var(--radius-l);
+    padding:44px 24px;
+    text-align:center;
+    color:var(--text-dim);
+  }
+  .empty-state h3{color:var(--paper); margin:0 0 9px; font-size:23px;}
+  .empty-state p{margin:0 0 18px; font-size:16.5px; line-height:1.55;}
+  .avail-toolbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    margin-bottom:16px;
+    flex-wrap:wrap;
+  }
+  .mode-toggle{
+    display:flex;
+    background:var(--ink-2);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:3px;
+    gap:2px;
+  }
+  .mode-toggle button{
+    border:none;background:none;color:var(--text-dim);
+    padding:8px 15px;border-radius:999px;font-size:15px;font-weight:700;
+    cursor:pointer;
+  }
+  .mode-toggle button.active{background:var(--paper); color:var(--text-ink);}
+  .legend{
+    display:flex;gap:15px;align-items:center;flex-wrap:wrap;
+    font-size:14.5px;color:var(--text-dim);
+    font-weight:500;
+  }
+  .legend .item{display:flex;align-items:center;gap:7px;}
+  .legend .sw{width:13px;height:13px;border-radius:4px;}
+  .grid-scroll{
+    overflow-x:auto;
+    border:1px solid var(--line);
+    border-radius:var(--radius-l);
+    background:var(--ink-2);
+    padding:15px;
+  }
+  .grid-wrap{
+    display:grid;
+    min-width:max-content;
+  }
+  .grid-corner{
+    position:sticky; left:0; z-index:3;
+    background:var(--ink-2);
+  }
+  .day-head{
+    text-align:center;
+    padding:6px 4px 11px;
+    border-bottom:1px solid var(--line);
+    font-size:14.5px;
+    color:var(--text-dim);
+    min-width:70px;
+  }
+  .day-head .dow{display:block; font-weight:700; color:var(--paper); font-size:15.5px;}
+  .hour-label{
+    font-size:13px;
+    color:var(--text-faint);
+    padding:0 10px 0 0;
+    text-align:right;
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    position:sticky; left:0;
+    background:var(--ink-2);
+    min-width:62px;
+  }
+  .cell{
+    height:30px;
+    margin:1.5px;
+    border-radius:5px;
+    background:rgba(255,255,255,0.035);
+    border:1px solid rgba(255,255,255,0.05);
+    cursor:pointer;
+    position:relative;
+    touch-action:none;
+  }
+  .cell:hover{border-color:var(--line-strong);}
+  .cell.sched{
+    outline:2px dashed rgba(251,247,240,0.55);
+    outline-offset:-2px;
+  }
+  .cell.sched::after{
+    content:'';
+    position:absolute; top:2px; right:2px;
+    width:5px;height:5px;border-radius:50%;
+    background:var(--paper);
+  }
+  .cell.pending-select{
+    outline:2px solid var(--accent);
+    outline-offset:-2px;
+  }
+  .dates-section{margin-top:26px;}
+  .dates-section-title{
+    font-size:19px;
+    color:var(--paper);
+    margin:0 0 14px;
+  }
+  .period-group{margin-bottom:26px;}
+  .period-group-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:11px;
+    flex-wrap:wrap;
+  }
+  .period-group-head h3{
+    color:var(--paper);
+    font-size:19px;
+    margin:0;
+  }
+  .period-group-head .meta{
+    font-size:15px;
+    color:var(--text-faint);
+  }
+  .dates-list, .ideas-list{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .card{
+    background:var(--paper);
+    color:var(--text-ink);
+    border-radius:var(--radius-l);
+    padding:17px 19px;
+    display:flex;
+    justify-content:space-between;
+    gap:16px;
+    align-items:flex-start;
+    flex-wrap:wrap;
+  }
+  .card .main{flex:1; min-width:220px;}
+  .card .when{
+    font-size:13.5px;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    color:var(--text-ink-dim);
+    margin-bottom:5px;
+    font-weight:700;
+  }
+  .card .title{
+    font-size:22px;
+    font-weight:700;
+    margin:0 0 4px;
+  }
+  .card .notes{font-size:15.5px; color:var(--text-ink-dim); line-height:1.5; margin-top:5px;}
+  .card .actions{display:flex; gap:8px; flex-wrap:wrap;}
+  .card .actions .btn{
+    color:var(--text-ink);
+    border-color:rgba(34,40,59,0.2);
+  }
+  .card .actions .btn:hover{background:rgba(34,40,59,0.06);}
+  .card .actions .btn-danger{color:var(--danger); border-color:rgba(226,99,122,0.4);}
+  .pill{
+    display:inline-block;
+    font-size:13.5px;
+    font-weight:700;
+    padding:4px 11px;
+    border-radius:999px;
+    background:var(--paper-dim);
+    color:var(--text-ink-dim);
+  }
+  .idea-tag{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:15px; color:var(--text-ink-dim); margin-top:7px;
+  }
+  .overlay{
+    position:fixed; inset:0;
+    background:rgba(10,12,24,0.6);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:50;
+  }
+  .overlay.show{display:flex;}
+  .modal{
+    background:var(--paper);
+    color:var(--text-ink);
+    border-radius:var(--radius-l);
+    padding:28px 28px 24px;
+    width:100%;
+    max-width:440px;
+    max-height:88vh;
+    overflow-y:auto;
+  }
+  .modal h2{margin:0 0 5px; font-size:25px;}
+  .modal .sub{font-size:15.5px; color:var(--text-ink-dim); margin:0 0 19px; line-height:1.5;}
+  .field{margin-bottom:15px;}
+  .field label{
+    display:block; font-size:13.5px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.05em;
+    color:var(--text-ink-dim); margin-bottom:6px;
+  }
+  .field input[type=text], .field input[type=date], .field input[type=time], .field textarea, .field select{
+    width:100%;
+    border:1px solid rgba(34,40,59,0.18);
+    border-radius:var(--radius-s);
+    padding:10px 12px;
+    font-size:16.5px;
+    font-family:inherit;
+    background:#fff;
+    color:var(--text-ink);
+  }
+  .field textarea{resize:vertical; min-height:64px;}
+  .field .hint-inline{font-size:13.5px; color:var(--text-ink-dim); margin-top:5px;}
+  .row-2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .identity-grid{display:flex; gap:12px;}
+  .identity-card{
+    flex:1;
+    border:2px solid rgba(34,40,59,0.15);
+    border-radius:var(--radius-m);
+    padding:18px 12px;
+    text-align:center;
+    cursor:pointer;
+    background:#fff;
+  }
+  .identity-card:hover{border-color:rgba(34,40,59,0.35);}
+  .identity-card .sw{
+    width:38px;height:38px;border-radius:50%;
+    margin:0 auto 10px;
+  }
+  .identity-card .name{font-weight:700; font-size:18.5px;}
+  .modal-actions{
+    display:flex; justify-content:flex-end; gap:10px; margin-top:22px;
+  }
+  .modal-actions .btn{color:var(--text-ink); border-color:rgba(34,40,59,0.2);}
+  .modal-actions .btn:hover{background:rgba(34,40,59,0.06);}
+  .hint{font-size:13px; color:var(--text-dim); margin-top:-8px; margin-bottom:14px;}
+  .date-preview{
+    background:rgba(139,111,217,.10);
+    border:1px solid rgba(139,111,217,.20);
+    border-radius:12px;
+    padding:12px 14px;
+    margin:0 0 16px;
+    line-height:1.5;
+  }
+  @media (max-width:520px){
+    .row-2{grid-template-columns:1fr;}
+    .app-title{font-size:30px;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="app-header">
+    <h1 class="app-title">Save the Date</h1>
+    <div class="who-am-i" id="whoAmI"></div>
+  </div>
+
+  <div class="periods-bar">
+    <div class="label">Date periods</div>
+    <div class="chip-row" id="periodsChipRow"></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="availability">Availability</button>
+    <button class="tab" data-tab="ideas">Ideas <span class="count" id="ideasCount"></span></button>
+  </div>
+
+  <div class="panel active" id="panel-availability">
+    <div id="availContent"></div>
+    <div class="dates-section">
+      <h3 class="dates-section-title">Your dates <span class="count" id="datesCount"></span></h3>
+      <div id="datesContent"></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-ideas">
+    <div class="avail-toolbar">
+      <div></div>
+      <button class="btn btn-accent btn-sm" id="addIdeaBtn">+ Add an idea</button>
+    </div>
+    <div id="ideasContent"></div>
+  </div>
+
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal" id="modalBody"></div>
+</div>
+
+<script>
+(function(){
+
+  var STORAGE_KEY = 'savethedate-data';
+  var ME_KEY = 'savethedate-me';
+  var ACTIVE_PERIOD_KEY = 'savethedate-active-period';
+  var PEOPLE = { Bat: '#8B6FD9', Ant: '#D8703A' };
+  var DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  var state = { periods:[], availability:{}, dates:[], ideas:[] };
+  var me = null;
+  var activePeriodId = null;
+  var activeTab = 'availability';
+  var mode = 'mark';
+  var dragging = false;
+  var dragValue = null;
+  var scheduleDrag = null;
+  var lastSavedJSON = '';
+
+  function uid(){ return Math.random().toString(36).slice(2,10)+Date.now().toString(36); }
+  function parseDate(str){
+    var p = str.split('-').map(Number);
+    return new Date(p[0], p[1]-1, p[2]);
+  }
+  function fmtDate(str){
+    var d = parseDate(str);
+    return DOW[d.getDay()] + ' ' + MON[d.getMonth()] + ' ' + d.getDate();
+  }
+  function fmtDateShort(str){
+    var d = parseDate(str);
+    return MON[d.getMonth()] + ' ' + d.getDate();
+  }
+  function fmtHour(h){
+    var period = h < 12 ? 'AM' : 'PM';
+    var hr = h % 12; if(hr===0) hr = 12;
+    return hr + period;
+  }
+  function fmtHourRange(h1,h2){ return fmtHour(h1) + ' \u2013 ' + fmtHour(h2); }
+  function formatDateTimeLabel(date, startHour, endHour){
+    var d = parseDate(date);
+    var day = MON[d.getMonth()] + ' ' + d.getDate();
+    return day + ' \u00b7 ' + fmtHour(startHour) + '\u2013' + fmtHour(endHour);
+  }
+  function enumerateDates(startStr, endStr){
+    var out = [];
+    var d = parseDate(startStr);
+    var end = parseDate(endStr);
+    while(d <= end){
+      var y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
+      out.push(y+'-'+m+'-'+day);
+      d.setDate(d.getDate()+1);
+    }
+    return out;
+  }
+  function hoursArray(startHour, endHour){
+    var out = [];
+    for(var h=startHour; h<endHour; h++) out.push(h);
+    return out;
+  }
+  function slotKey(date,hour){ return date+'_'+hour; }
+  function debounce(fn, ms){
+    var t;
+    return function(){
+      clearTimeout(t);
+      var args = arguments;
+      t = setTimeout(function(){ fn.apply(null,args); }, ms);
+    };
+  }
+  function hexToRgb(hex){
+    hex = hex.replace('#','');
+    return [parseInt(hex.substr(0,2),16), parseInt(hex.substr(2,2),16), parseInt(hex.substr(4,2),16)];
+  }
+  function blendColors(colors){
+    var r=0,g=0,b=0;
+    colors.forEach(function(c){ var rgb=hexToRgb(c); r+=rgb[0]; g+=rgb[1]; b+=rgb[2]; });
+    r=Math.round(r/colors.length); g=Math.round(g/colors.length); b=Math.round(b/colors.length);
+    return 'rgb('+r+','+g+','+b+')';
+  }
+  var BOTH_COLOR = blendColors([PEOPLE.Bat, PEOPLE.Ant]);
+  function escapeHtml(s){
+    return (s||'').replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function getPeriod(id){ return state.periods.find(function(p){ return p.id === id; }) || null; }
+  function activePeriod(){ return getPeriod(activePeriodId); }
+  function normalizeLoc(s){ return (s||'').trim().toLowerCase(); }
+
+  async function loadAll(){
+    try{
+      var meRes = await window.storage.get(ME_KEY, false);
+      if(meRes) me = JSON.parse(meRes.value);
+    }catch(e){ me = null; }
+    try{
+      var apRes = await window.storage.get(ACTIVE_PERIOD_KEY, false);
+      if(apRes) activePeriodId = JSON.parse(apRes.value);
+    }catch(e){ activePeriodId = null; }
+    try{
+      var dataRes = await window.storage.get(STORAGE_KEY, true);
+      if(dataRes){
+        state = JSON.parse(dataRes.value);
+        lastSavedJSON = dataRes.value;
+      }
+    }catch(e){ /* no shared data yet */ }
+    normalizeState();
+  }
+  function normalizeState(){
+    state.periods = state.periods || [];
+    state.availability = state.availability || {};
+    state.dates = state.dates || [];
+    state.ideas = state.ideas || [];
+    if(!getPeriod(activePeriodId) && state.periods.length){
+      activePeriodId = state.periods[0].id;
+    }
+  }
+  var saveShared = debounce(async function(){
+    try{
+      var json = JSON.stringify(state);
+      lastSavedJSON = json;
+      await window.storage.set(STORAGE_KEY, json, true);
+    }catch(e){ console.error('save failed', e); }
+  }, 250);
+  async function saveMe(){
+    try{ await window.storage.set(ME_KEY, JSON.stringify(me), false); }catch(e){}
+  }
+  async function saveActivePeriod(){
+    try{ await window.storage.set(ACTIVE_PERIOD_KEY, JSON.stringify(activePeriodId), false); }catch(e){}
+  }
+  async function pollRemote(){
+    if(dragging) return;
+    try{
+      var res = await window.storage.get(STORAGE_KEY, true);
+      if(res && res.value !== lastSavedJSON){
+        state = JSON.parse(res.value);
+        normalizeState();
+        lastSavedJSON = res.value;
+        renderAll();
+      }
+    }catch(e){ /* ignore */ }
+  }
+  setInterval(pollRemote, 4000);
+
+  var overlay = document.getElementById('overlay');
+  var modalBody = document.getElementById('modalBody');
+  function openModal(html){
+    modalBody.innerHTML = html;
+    overlay.classList.add('show');
+  }
+  function closeModal(){
+    overlay.classList.remove('show');
+    modalBody.innerHTML = '';
+  }
+  overlay.addEventListener('mousedown', function(e){
+    if(e.target === overlay) closeModal();
+  });
+
+  function showIdentityModal(){
+    var cards = Object.keys(PEOPLE).map(function(name){
+      return '<div class="identity-card" data-name="'+name+'">'+
+        '<div class="sw" style="background:'+PEOPLE[name]+'"></div>'+
+        '<div class="name">'+name+'</div>'+
+      '</div>';
+    }).join('');
+    openModal(
+      '<h2>Who is this?</h2>'+
+      '<p class="sub">Pick who you are. This device will remember, so your times are still here next time you open the link.</p>'+
+      '<div class="identity-grid">'+cards+'</div>'
+    );
+    document.querySelectorAll('.identity-card').forEach(function(card){
+      card.addEventListener('click', function(){
+        me = { name: card.getAttribute('data-name') };
+        saveMe();
+        closeModal();
+        renderAll();
+      });
+    });
+  }
+
+  function collectKnownLocations(){
+    var set = {};
+    state.periods.forEach(function(p){ if(p.location) set[p.location.trim()] = true; });
+    return Object.keys(set);
+  }
+  function showPeriodModal(existing){
+    var p = existing || { name:'', location:'', startDate:'', endDate:'', startHour:9, endHour:23 };
+    var locs = collectKnownLocations();
+    openModal(
+      '<h2>'+(existing?'Edit period':'New date period')+'</h2>'+
+      '<p class="sub">Group a visit together, like "Summer break" or "Thanksgiving," so it stays organized.</p>'+
+      '<div class="field"><label>Name</label><input type="text" id="pName" placeholder="e.g. Summer" value="'+escapeHtml(p.name)+'"></div>'+
+      '<div class="field"><label>City</label><input type="text" id="pLocation" placeholder="e.g. Seattle" list="knownLocs" value="'+escapeHtml(p.location)+'">'+
+        '<datalist id="knownLocs">'+locs.map(function(l){ return '<option value="'+escapeHtml(l)+'">'; }).join('')+'</datalist>'+
+      '</div>'+
+      '<div class="row-2">'+
+        '<div class="field"><label>Arrives</label><input type="date" id="pStart" value="'+(p.startDate||'')+'"></div>'+
+        '<div class="field"><label>Leaves</label><input type="date" id="pEnd" value="'+(p.endDate||'')+'"></div>'+
+      '</div>'+
+      '<div class="row-2">'+
+        '<div class="field"><label>Earliest hour</label><input type="time" id="pStartHour" value="'+String(p.startHour).padStart(2,'0')+':00"></div>'+
+        '<div class="field"><label>Latest hour</label><input type="time" id="pEndHour" value="'+String(p.endHour).padStart(2,'0')+':00"></div>'+
+      '</div>'+
+      '<div class="modal-actions">'+
+        (existing?'<button class="btn btn-danger" id="deletePeriodBtn" style="margin-right:auto">Delete</button>':'')+
+        '<button class="btn" id="cancelPeriodBtn">Cancel</button>'+
+        '<button class="btn btn-accent" id="savePeriodBtn">Save</button>'+
+      '</div>'
+    );
+    document.getElementById('cancelPeriodBtn').addEventListener('click', closeModal);
+    if(existing){
+      document.getElementById('deletePeriodBtn').addEventListener('click', function(){
+        var hasDates = state.dates.some(function(d){ return d.periodId === existing.id; });
+        var msg = hasDates
+          ? 'This period has dates saved under it. Delete it anyway? The dates themselves will stay, just without a period label.'
+          : 'Delete this period?';
+        if(!window.confirm(msg)) return;
+        state.periods = state.periods.filter(function(x){ return x.id !== existing.id; });
+        if(activePeriodId === existing.id){
+          activePeriodId = state.periods.length ? state.periods[0].id : null;
+          saveActivePeriod();
+        }
+        saveShared();
+        closeModal();
+        renderAll();
+      });
+    }
+    document.getElementById('savePeriodBtn').addEventListener('click', function(){
+      var name = document.getElementById('pName').value.trim();
+      var location = document.getElementById('pLocation').value.trim();
+      var start = document.getElementById('pStart').value;
+      var end = document.getElementById('pEnd').value;
+      var sh = parseInt(document.getElementById('pStartHour').value.split(':')[0],10);
+      var eh = parseInt(document.getElementById('pEndHour').value.split(':')[0],10);
+      if(!name){ alert('Give this period a name.'); return; }
+      if(!start || !end){ alert('Add both dates.'); return; }
+      if(parseDate(end) < parseDate(start)){ alert('The end date needs to be on or after the start date.'); return; }
+      if(eh <= sh){ alert('The latest hour needs to be after the earliest hour.'); return; }
+      var id = existing ? existing.id : uid();
+      var record = { id:id, name:name, location:location, startDate:start, endDate:end, startHour:sh, endHour:eh };
+      if(existing){
+        var i = state.periods.findIndex(function(x){ return x.id === existing.id; });
+        state.periods[i] = record;
+      } else {
+        state.periods.push(record);
+        activePeriodId = id;
+        saveActivePeriod();
+      }
+      saveShared();
+      closeModal();
+      renderAll();
+    });
+  }
+
+  function renderPeriodsBar(){
+    var el = document.getElementById('periodsChipRow');
+    var html = state.periods.map(function(p){
+      var active = p.id === activePeriodId;
+      return '<div class="chip'+(active?' active':'')+'" data-id="'+p.id+'">'+
+        '<div>'+
+          '<div class="chip-name">'+escapeHtml(p.name)+'</div>'+
+          '<div class="chip-meta">'+(p.location?escapeHtml(p.location)+' \u00b7 ':'')+fmtDateShort(p.startDate)+'\u2013'+fmtDateShort(p.endDate)+'</div>'+
+        '</div>'+
+        '<button class="edit-pencil" data-editid="'+p.id+'" title="Edit">&#9998;</button>'+
+      '</div>';
+    }).join('');
+    html += '<button class="chip chip-add" id="addPeriodChip">+ New period</button>';
+    el.innerHTML = html;
+    document.querySelectorAll('.chip[data-id]').forEach(function(chip){
+      chip.addEventListener('click', function(e){
+        if(e.target.closest('.edit-pencil')) return;
+        activePeriodId = chip.getAttribute('data-id');
+        saveActivePeriod();
+        renderAll();
+      });
+    });
+    document.querySelectorAll('.edit-pencil').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        showPeriodModal(getPeriod(btn.getAttribute('data-editid')));
+      });
+    });
+    document.getElementById('addPeriodChip').addEventListener('click', function(){ showPeriodModal(null); });
+  }
+
+  function toggleAvailability(date, hour, forceValue){
+    if(!me) return;
+    var arr = state.availability[me.name] || [];
+    var key = slotKey(date,hour);
+    var idx = arr.indexOf(key);
+    var isSet = idx !== -1;
+    var target = forceValue !== undefined ? forceValue : !isSet;
+    if(target && !isSet) arr.push(key);
+    if(!target && isSet) arr.splice(idx,1);
+    state.availability[me.name] = arr;
+  }
+  function slotParticipants(date, hour){
+    var key = slotKey(date,hour);
+    var names = [];
+    Object.keys(PEOPLE).forEach(function(name){
+      if((state.availability[name]||[]).indexOf(key) !== -1) names.push(name);
+    });
+    return names;
+  }
+  function isOverlappedSlot(date, hour){
+    return slotParticipants(date, hour).length === Object.keys(PEOPLE).length;
+  }
+  function rangeIsOverlapped(date, startHour, endHour){
+    for(var h=startHour; h<endHour; h++){
+      if(!isOverlappedSlot(date, h)) return false;
+    }
+    return true;
+  }
+  function isSlotScheduled(date, hour){
+    return state.dates.some(function(d){
+      return d.date === date && hour >= d.startHour && hour < d.endHour;
+    });
+  }
+  function slotBackground(date, hour){
+    var names = slotParticipants(date,hour);
+    if(names.length === 1){
+      var rgb = hexToRgb(PEOPLE[names[0]]);
+      return 'rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+',0.55)';
+    } else if(names.length >= 2){
+      return BOTH_COLOR;
+    }
+    return 'rgba(255,255,255,0.035)';
+  }
+  function paintCell(date, hour){
+    var cell = document.querySelector('.cell[data-day="'+date+'"][data-hour="'+hour+'"]');
+    if(!cell) return;
+    cell.style.background = slotBackground(date, hour);
+    var names = slotParticipants(date,hour);
+    cell.title = names.length ? names.join(' & ')+' free' : 'Nobody marked free yet';
+  }
+
+  function renderAvailability(){
+    var el = document.getElementById('availContent');
+    var t = activePeriod();
+    if(!t){
+      el.innerHTML =
+        '<div class="empty-state">'+
+          '<h3>Start a date period</h3>'+
+          '<p>Create a period for the next time you are in the same city \u2014 give it a name, a place, and a date range \u2014 and Save the Date lays out the days and hours to mark free time on.</p>'+
+          '<button class="btn btn-accent" id="setupPeriodBtn">Create a period</button>'+
+        '</div>';
+      document.getElementById('setupPeriodBtn').addEventListener('click', function(){ showPeriodModal(null); });
+      return;
+    }
+    var days = enumerateDates(t.startDate, t.endDate);
+    var hours = hoursArray(t.startHour, t.endHour);
+
+    var legendItems = Object.keys(PEOPLE).map(function(n){
+      return '<div class="item"><span class="sw" style="background:'+PEOPLE[n]+'"></span>'+n+(me && n===me.name?' (you)':'')+'</div>';
+    }).join('');
+    legendItems += '<div class="item"><span class="sw" style="background:'+BOTH_COLOR+'"></span>Both free</div>';
+
+    var html = '';
+    html += '<div class="avail-toolbar">';
+    html += '<div class="mode-toggle">'+
+      '<button data-mode="mark" class="'+(mode==='mark'?'active':'')+'">Mark free time</button>'+
+      '<button data-mode="schedule" class="'+(mode==='schedule'?'active':'')+'">Turn into a date</button>'+
+      '</div>';
+    html += '<div class="legend">'+legendItems+'</div>';
+    html += '</div>';
+
+    html += '<div class="grid-scroll"><div class="grid-wrap" id="gridWrap" style="grid-template-columns:62px repeat('+days.length+', 70px); grid-auto-rows:33px;">';
+    html += '<div class="grid-corner"></div>';
+    days.forEach(function(day){
+      var d = parseDate(day);
+      html += '<div class="day-head"><span class="dow">'+DOW[d.getDay()]+'</span>'+MON[d.getMonth()]+' '+d.getDate()+'</div>';
+    });
+    hours.forEach(function(h){
+      html += '<div class="hour-label">'+fmtHour(h)+'</div>';
+      days.forEach(function(day){
+        var bg = slotBackground(day,h);
+        var sched = isSlotScheduled(day,h) ? ' sched' : '';
+        var names = slotParticipants(day,h);
+        var title = names.length ? names.join(' & ')+' free' : 'Nobody marked free yet';
+        html += '<div class="cell'+sched+'" data-day="'+day+'" data-hour="'+h+'" style="background:'+bg+'" title="'+escapeHtml(title)+'"></div>';
+      });
+    });
+    html += '</div></div>';
+
+    if(mode === 'schedule'){
+      html += '<p class="hint" style="margin-top:12px;">Drag along a column across time you are both free to select a stretch, then let go to make it a date.</p>';
+    }
+
+    el.innerHTML = html;
+    Array.from(document.querySelectorAll('.mode-toggle button')).forEach(function(btn){
+      btn.addEventListener('click', function(){
+        mode = btn.getAttribute('data-mode');
+        scheduleDrag = null;
+        renderAvailability();
+      });
+    });
+    attachGridHandlers();
+  }
+
+  function getCellAtPoint(x, y){
+    var el = document.elementFromPoint(x, y);
+    if(!el) return null;
+    return el.closest ? el.closest('.cell') : null;
+  }
+
+  function paintScheduleSelection(){
+    document.querySelectorAll('.cell.pending-select').forEach(function(c){ c.classList.remove('pending-select'); });
+    if(!scheduleDrag) return;
+    for(var h=scheduleDrag.minHour; h<scheduleDrag.maxHour; h++){
+      var sel = document.querySelector('.cell[data-day="'+scheduleDrag.date+'"][data-hour="'+h+'"]');
+      if(sel) sel.classList.add('pending-select');
+    }
+  }
+
+  function handleDraggedCell(cell){
+    if(!cell || !dragging || mode !== 'schedule' || !scheduleDrag) return;
+    var date = cell.getAttribute('data-day');
+    var hour = parseInt(cell.getAttribute('data-hour'), 10);
+    if(date !== scheduleDrag.date) return;
+    if(!isOverlappedSlot(date, hour)) return;
+
+    var start = scheduleDrag.startHour;
+    var min = Math.min(start, hour);
+    var max = Math.max(start, hour) + 1;
+
+    if(!rangeIsOverlapped(date, min, max)) return;
+
+    scheduleDrag.minHour = min;
+    scheduleDrag.maxHour = max;
+    paintScheduleSelection();
+  }
+
+  function attachGridHandlers(){
+    var cells = document.querySelectorAll('.cell');
+    cells.forEach(function(cell){
+      cell.addEventListener('pointerdown', function(e){
+        e.preventDefault();
+        var date = cell.getAttribute('data-day');
+        var hour = parseInt(cell.getAttribute('data-hour'), 10);
+
+        if(mode === 'mark'){
+          if(!me){ showIdentityModal(); return; }
+          dragging = true;
+          var key = slotKey(date, hour);
+          var isSet = (state.availability[me.name] || []).indexOf(key) !== -1;
+          dragValue = !isSet;
+          toggleAvailability(date, hour, dragValue);
+          paintCell(date, hour);
+          return;
+        }
+
+        if(!isOverlappedSlot(date, hour)) return;
+        dragging = true;
+        scheduleDrag = { date: date, startHour: hour, minHour: hour, maxHour: hour + 1 };
+        paintScheduleSelection();
+      });
+    });
+  }
+
+  document.addEventListener('pointermove', function(e){
+    if(!dragging) return;
+    if(mode === 'mark'){
+      var cell = getCellAtPoint(e.clientX, e.clientY);
+      if(!cell) return;
+      var date = cell.getAttribute('data-day');
+      var hour = parseInt(cell.getAttribute('data-hour'), 10);
+      if(!me) return;
+      var key = slotKey(date, hour);
+      var arr = state.availability[me.name] || [];
+      var isSet = arr.indexOf(key) !== -1;
+      if(isSet === dragValue) return;
+      toggleAvailability(date, hour, dragValue);
+      paintCell(date, hour);
+      return;
+    }
+    handleDraggedCell(getCellAtPoint(e.clientX, e.clientY));
+  });
+
+  function onPointerUp(){
+    if(!dragging) return;
+    dragging = false;
+
+    if(mode === 'mark'){
+      saveShared();
+      return;
+    }
+
+    if(mode === 'schedule' && scheduleDrag){
+      var sd = scheduleDrag;
+      scheduleDrag = null;
+      document.querySelectorAll('.cell.pending-select').forEach(function(c){ c.classList.remove('pending-select'); });
+      showDateModal(null, { date: sd.date, startHour: sd.minHour, endHour: sd.maxHour, periodId: activePeriodId });
+    }
+  }
+  document.addEventListener('pointerup', onPointerUp);
+  document.addEventListener('pointercancel', onPointerUp);
+
+  function showDateModal(existing, prefill){
+    var d = existing || prefill || {
+      date:'', startHour:9, endHour:10, title:'', notes:'', ideaId:null, periodId:activePeriodId
+    };
+
+    if(!state.periods.length){
+      alert('Create a date period first, so this date has somewhere to live.');
+      showPeriodModal(null);
+      return;
+    }
+
+    var period = getPeriod(d.periodId || activePeriodId);
+    var periodName = period ? period.name : '';
+
+    var ideaOptions = '<option value="">Choose a date idea\u2026</option>';
+    if(period){
+      state.ideas.filter(function(idea){
+        var free = !idea.dateId || idea.dateId === (existing ? existing.id : null);
+        var locOk = !idea.location || normalizeLoc(idea.location) === normalizeLoc(period.location);
+        return free && locOk;
+      }).forEach(function(idea){
+        var selected = d.ideaId === idea.id ? ' selected' : '';
+        ideaOptions += '<option value="'+idea.id+'"'+selected+'>'+escapeHtml(idea.title)+
+          (idea.location ? ' (\ud83d\udccd '+escapeHtml(idea.location)+')' : '')+'</option>';
+      });
+    }
+
+    var customTitle = d.ideaId ? '' : (d.title || '');
+    var previewHtml = '<div class="date-preview">'+
+        '<strong>'+escapeHtml(formatDateTimeLabel(d.date, d.startHour, d.endHour))+'</strong>'+
+        '<div>'+escapeHtml(periodName)+'</div>'+
+      '</div>';
+
+    if(existing){
+      openModal(
+        '<h2>Edit date</h2>'+
+        previewHtml+
+        '<div class="field"><label>Date idea</label><select id="dateIdea">'+ideaOptions+'</select></div>'+
+        '<div class="field"><label>Or describe your own</label><input type="text" id="dateCustomTitle" placeholder="e.g. Dinner by the water" value="'+escapeHtml(customTitle)+'"></div>'+
+        '<div class="field"><label>Notes <span style="font-weight:400;opacity:.6">(optional)</span></label><textarea id="dateNotes" placeholder="Reservation info, what to bring...">'+escapeHtml(d.notes||'')+'</textarea></div>'+
+        '<div class="modal-actions">'+
+          '<button class="btn btn-danger" id="deleteDateBtn" style="margin-right:auto">Remove</button>'+
+          '<button class="btn" id="cancelDateBtn">Cancel</button>'+
+          '<button class="btn btn-accent" id="saveDateBtn">Save changes</button>'+
+        '</div>'
+      );
+    } else {
+      openModal(
+        '<h2>What is this date for?</h2>'+
+        '<p class="sub">Pick something from your date ideas, or make up your own.</p>'+
+        previewHtml+
+        '<div class="field"><label>Date idea</label><select id="dateIdea">'+ideaOptions+'</select></div>'+
+        '<div class="field"><label>Or make your own</label><input type="text" id="dateCustomTitle" placeholder="e.g. Dinner by the water"></div>'+
+        '<div class="field"><label>Notes <span style="font-weight:400;opacity:.6">(optional)</span></label><textarea id="dateNotes" placeholder="Reservation info, what to bring..."></textarea></div>'+
+        '<div class="modal-actions">'+
+          '<button class="btn" id="cancelDateBtn">Cancel</button>'+
+          '<button class="btn btn-accent" id="saveDateBtn">Make it a date</button>'+
+        '</div>'
+      );
+    }
+
+    document.getElementById('cancelDateBtn').addEventListener('click', closeModal);
+
+    var ideaSelect = document.getElementById('dateIdea');
+    var customInput = document.getElementById('dateCustomTitle');
+    ideaSelect.addEventListener('change', function(){ if(ideaSelect.value) customInput.value = ''; });
+    customInput.addEventListener('input', function(){ if(customInput.value.trim()) ideaSelect.value = ''; });
+
+    if(existing){
+      document.getElementById('deleteDateBtn').addEventListener('click', function(){
+        state.dates = state.dates.filter(function(x){ return x.id !== existing.id; });
+        state.ideas.forEach(function(idea){ if(idea.dateId === existing.id) idea.dateId = null; });
+        saveShared();
+        closeModal();
+        renderAll();
+      });
+    }
+
+    document.getElementById('saveDateBtn').addEventListener('click', function(){
+      var ideaId = ideaSelect.value || null;
+      var customTitleValue = customInput.value.trim();
+      if(!ideaId && !customTitleValue){
+        alert('Choose a date idea or describe what the date is for.');
+        return;
+      }
+      var id = existing ? existing.id : uid();
+      state.ideas.forEach(function(idea){
+        if(idea.dateId === id && idea.id !== ideaId) idea.dateId = null;
+      });
+      if(ideaId){
+        var idea = state.ideas.find(function(i){ return i.id === ideaId; });
+        if(idea) idea.dateId = id;
+      }
+      var record = {
+        id:id,
+        periodId: d.periodId || activePeriodId,
+        date: d.date,
+        startHour: d.startHour,
+        endHour: d.endHour,
+        title: ideaId ? '' : customTitleValue,
+        notes: document.getElementById('dateNotes').value.trim(),
+        ideaId: ideaId
+      };
+      if(existing){
+        var index = state.dates.findIndex(function(x){ return x.id === existing.id; });
+        state.dates[index] = record;
+      } else {
+        state.dates.push(record);
+      }
+      saveShared();
+      closeModal();
+      renderAll();
+    });
+  }
+
+  function renderDates(){
+    var el = document.getElementById('datesContent');
+    document.getElementById('datesCount').textContent = state.dates.length ? '('+state.dates.length+')' : '';
+    if(!state.dates.length){
+      el.innerHTML = '<div class="empty-state">'+
+        '<h3>Nothing on the calendar yet</h3>'+
+        '<p>Switch to "Turn into a date," then drag across a stretch of time you are both free \u2014 it will ask what the date is for as soon as you let go.</p>'+
+        '</div>';
+      return;
+    }
+    var groups = {};
+    state.dates.forEach(function(d){
+      var key = d.periodId || '__none__';
+      groups[key] = groups[key] || [];
+      groups[key].push(d);
+    });
+    var groupKeys = Object.keys(groups).sort(function(a,b){
+      var pa = getPeriod(a), pb = getPeriod(b);
+      if(!pa && !pb) return 0;
+      if(!pa) return 1;
+      if(!pb) return -1;
+      return pa.startDate.localeCompare(pb.startDate);
+    });
+    el.innerHTML = groupKeys.map(function(key){
+      var period = getPeriod(key);
+      var items = groups[key].slice().sort(function(a,b){ return (a.date+String(a.startHour).padStart(2,'0')).localeCompare(b.date+String(b.startHour).padStart(2,'0')); });
+      var headHtml = period
+        ? '<div class="period-group-head"><h3>'+escapeHtml(period.name)+'</h3><span class="meta">'+(period.location?escapeHtml(period.location)+' \u00b7 ':'')+fmtDateShort(period.startDate)+'\u2013'+fmtDateShort(period.endDate)+'</span></div>'
+        : '<div class="period-group-head"><h3>Other dates</h3></div>';
+      var cardsHtml = items.map(function(d){
+        var idea = d.ideaId ? state.ideas.find(function(i){ return i.id===d.ideaId; }) : null;
+        var displayTitle = d.title || (idea ? idea.title : 'Open plan');
+        return '<div class="card">'+
+          '<div class="main">'+
+            '<div class="when">'+fmtDate(d.date)+' \u00b7 '+fmtHourRange(d.startHour,d.endHour)+'</div>'+
+            '<div class="title">'+escapeHtml(displayTitle)+'</div>'+
+            (idea && !d.title ? '' : (idea ? '<div class="idea-tag">\ud83d\udca1 '+escapeHtml(idea.title)+'</div>' : '')) +
+            (d.notes ? '<div class="notes">'+escapeHtml(d.notes)+'</div>' : '') +
+          '</div>'+
+          '<div class="actions">'+
+            '<button class="btn btn-sm edit-date" data-id="'+d.id+'">Edit</button>'+
+          '</div>'+
+        '</div>';
+      }).join('');
+      return '<div class="period-group">'+headHtml+'<div class="dates-list">'+cardsHtml+'</div></div>';
+    }).join('');
+    document.querySelectorAll('.edit-date').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var d = state.dates.find(function(x){ return x.id === btn.getAttribute('data-id'); });
+        showDateModal(d, null);
+      });
+    });
+  }
+
+  function showIdeaModal(existing){
+    var i = existing || { title:'', description:'', location:'' };
+    var locs = collectKnownLocations();
+    openModal(
+      '<h2>'+(existing?'Edit idea':'Add a date idea')+'</h2>'+
+      '<div class="field"><label>Title</label><input type="text" id="ideaTitle" placeholder="e.g. Picnic at the botanical garden" value="'+escapeHtml(i.title)+'"></div>'+
+      '<div class="field"><label>City (optional)</label><input type="text" id="ideaLocation" placeholder="Leave blank if it works anywhere" list="ideaLocs" value="'+escapeHtml(i.location||'')+'">'+
+        '<datalist id="ideaLocs">'+locs.map(function(l){ return '<option value="'+escapeHtml(l)+'">'; }).join('')+'</datalist>'+
+        '<div class="hint-inline">Only shows up as an option for dates in that city. Leave blank to use it anywhere.</div>'+
+      '</div>'+
+      '<div class="field"><label>Notes (optional)</label><textarea id="ideaDesc" placeholder="Any details worth remembering">'+escapeHtml(i.description||'')+'</textarea></div>'+
+      '<div class="modal-actions">'+
+        (existing?'<button class="btn btn-danger" id="deleteIdeaBtn" style="margin-right:auto">Remove</button>':'')+
+        '<button class="btn" id="cancelIdeaBtn">Cancel</button>'+
+        '<button class="btn btn-accent" id="saveIdeaBtn">Save</button>'+
+      '</div>'
+    );
+    document.getElementById('cancelIdeaBtn').addEventListener('click', closeModal);
+    if(existing){
+      document.getElementById('deleteIdeaBtn').addEventListener('click', function(){
+        state.ideas = state.ideas.filter(function(x){ return x.id !== existing.id; });
+        saveShared();
+        closeModal();
+        renderAll();
+      });
+    }
+    document.getElementById('saveIdeaBtn').addEventListener('click', function(){
+      var title = document.getElementById('ideaTitle').value.trim();
+      var location = document.getElementById('ideaLocation').value.trim();
+      var desc = document.getElementById('ideaDesc').value.trim();
+      if(!title){ alert('Give the idea a title.'); return; }
+      if(existing){
+        existing.title = title; existing.description = desc; existing.location = location;
+      } else {
+        state.ideas.push({ id:uid(), title:title, description:desc, location:location, dateId:null });
+      }
+      saveShared();
+      closeModal();
+      renderAll();
+    });
+  }
+  function showAssignModal(idea){
+    var openDates = state.dates.filter(function(d){
+      if(d.ideaId) return false;
+      if(!idea.location) return true;
+      var period = getPeriod(d.periodId);
+      return period && normalizeLoc(period.location) === normalizeLoc(idea.location);
+    });
+    if(!openDates.length){
+      openModal('<h2>No matching open dates</h2><p class="sub">'+(idea.location ? 'There is no open date in '+escapeHtml(idea.location)+' yet.' : 'Every date already has a plan, or there are no dates yet.')+' Drag a stretch of shared free time in Availability to create one.</p><div class="modal-actions"><button class="btn btn-accent" id="okBtn">Got it</button></div>');
+      document.getElementById('okBtn').addEventListener('click', closeModal);
+      return;
+    }
+    var options = openDates.map(function(d){
+      var period = getPeriod(d.periodId);
+      return '<option value="'+d.id+'">'+fmtDate(d.date)+' \u00b7 '+fmtHourRange(d.startHour,d.endHour)+(period?' \u00b7 '+escapeHtml(period.name):'')+'</option>';
+    }).join('');
+    openModal(
+      '<h2>Assign "'+escapeHtml(idea.title)+'"</h2>'+
+      '<div class="field"><label>To which date?</label><select id="assignSelect">'+options+'</select></div>'+
+      '<div class="modal-actions"><button class="btn" id="cancelAssign">Cancel</button><button class="btn btn-accent" id="confirmAssign">Assign</button></div>'
+    );
+    document.getElementById('cancelAssign').addEventListener('click', closeModal);
+    document.getElementById('confirmAssign').addEventListener('click', function(){
+      var dateId = document.getElementById('assignSelect').value;
+      idea.dateId = dateId;
+      var d = state.dates.find(function(x){ return x.id === dateId; });
+      if(d) d.ideaId = idea.id;
+      saveShared();
+      closeModal();
+      renderAll();
+    });
+  }
+
+  function renderIdeas(){
+    var el = document.getElementById('ideasContent');
+    document.getElementById('ideasCount').textContent = state.ideas.length ? '('+state.ideas.length+')' : '';
+    if(!state.ideas.length){
+      el.innerHTML = '<div class="empty-state">'+
+        '<h3>No ideas yet</h3>'+
+        '<p>Keep a running list of things you want to do together, and pull them into a date once you have found the time.</p>'+
+        '</div>';
+      return;
+    }
+    el.innerHTML = '<div class="ideas-list">' + state.ideas.map(function(idea){
+      var linkedDate = idea.dateId ? state.dates.find(function(d){ return d.id===idea.dateId; }) : null;
+      return '<div class="card">'+
+        '<div class="main">'+
+          '<div style="display:flex; gap:6px; flex-wrap:wrap;">'+
+            (linkedDate ? '<span class="pill">'+fmtDate(linkedDate.date)+' \u00b7 '+fmtHourRange(linkedDate.startHour,linkedDate.endHour)+'</span>' : '<span class="pill">Not scheduled</span>')+
+            '<span class="pill">'+(idea.location ? '\ud83d\udccd '+escapeHtml(idea.location) : 'Works anywhere')+'</span>'+
+          '</div>'+
+          '<div class="title" style="margin-top:9px;">'+escapeHtml(idea.title)+'</div>'+
+          (idea.description ? '<div class="notes">'+escapeHtml(idea.description)+'</div>' : '')+
+        '</div>'+
+        '<div class="actions">'+
+          (linkedDate ? '' : '<button class="btn btn-sm assign-idea" data-id="'+idea.id+'">Assign to a date</button>')+
+          '<button class="btn btn-sm edit-idea" data-id="'+idea.id+'">Edit</button>'+
+        '</div>'+
+      '</div>';
+    }).join('') + '</div>';
+    document.querySelectorAll('.edit-idea').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var idea = state.ideas.find(function(x){ return x.id === btn.getAttribute('data-id'); });
+        showIdeaModal(idea);
+      });
+    });
+    document.querySelectorAll('.assign-idea').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var idea = state.ideas.find(function(x){ return x.id === btn.getAttribute('data-id'); });
+        showAssignModal(idea);
+      });
+    });
+  }
+
+  function renderHeader(){
+    var el = document.getElementById('whoAmI');
+    if(!me){ el.innerHTML=''; return; }
+    el.innerHTML = '<span class="swatch" style="background:'+PEOPLE[me.name]+'"></span>'+me.name+'<button id="switchMeBtn">switch</button>';
+    document.getElementById('switchMeBtn').addEventListener('click', function(){ showIdentityModal(); });
+  }
+  function renderTabs(){
+    document.querySelectorAll('.tab').forEach(function(t){
+      t.classList.toggle('active', t.getAttribute('data-tab') === activeTab);
+    });
+    document.querySelectorAll('.panel').forEach(function(p){
+      p.classList.toggle('active', p.id === 'panel-'+activeTab);
+    });
+  }
+
+  function renderAll(){
+    renderHeader();
+    renderPeriodsBar();
+    renderTabs();
+    renderAvailability();
+    renderDates();
+    renderIdeas();
+  }
+
+  document.querySelectorAll('.tab').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      activeTab = tab.getAttribute('data-tab');
+      renderAll();
+    });
+  });
+  document.getElementById('addIdeaBtn').addEventListener('click', function(){
+    showIdeaModal(null);
+  });
+
+  (async function init(){
+    await loadAll();
+    if(!me){ showIdentityModal(); }
+    renderAll();
+  })();
+
+})();
+</script>
+</body>
+</html>
