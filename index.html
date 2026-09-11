@@ -647,7 +647,7 @@
  return { id:d.id, date:d.date, startHour:d.startHour, endHour:d.endHour,
  title:d.title||'', notes:d.notes||'', ideaIds: d.ideaIds || (d.ideaId ? [d.ideaId] : []) };
  }),
- ideas:linkedIdeasFor(p).map(function(i){
+ ideas:(state.ideas||[]).map(function(i){
  return { id:i.id, title:i.title||'', description:i.description||'', location:i.location||'', dateId:i.dateId||null };
  })
  };
