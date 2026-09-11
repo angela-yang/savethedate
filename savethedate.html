@@ -397,7 +397,7 @@
  padding:10px 12px;
  font-size:16.5px;
  font-family:inherit;
- background:#fff;
+ background:#ebe4dd;
  color:var(--text-ink);
  }
  .field textarea{resize:vertical; min-height:64px;}
@@ -627,7 +627,7 @@
  openModal(
  '<h2>Welcome — who are you?</h2>'+
  '<p class="sub">Enter your name. This browser remembers it, so your periods and times are still here next time you open this page.</p>'+
- '<div class="field"><label>Your name</label><input type="text" id="meName" placeholder="e.g. Alex" value="'+escapeHtml(me?me.name:'')+'"></div>'+
+ '<div class="field"><label>Your name</label><input type="text" id="meName" placeholder="" value="'+escapeHtml(me?me.name:'')+'"></div>'+
  '<div class="modal-actions">'+
  (me?'<button class="btn" id="cancelName">Cancel</button>':'')+
  '<button class="btn btn-accent" id="saveName">Save</button>'+
@@ -696,9 +696,9 @@
 
  openModal(
  '<h2>'+(existing?'Edit period':'New date period')+'</h2>'+
- '<p class="sub">Group a visit together, like “Summer break,” and list who is part of it. Then you can share it with them.</p>'+
- '<div class="field"><label>Name</label><input type="text" id="pName" placeholder="e.g. Summer" value="'+escapeHtml(p.name)+'"></div>'+
- '<div class="field"><label>City</label><input type="text" id="pLocation" placeholder="e.g. Seattle" list="knownLocs" value="'+escapeHtml(p.location)+'">'+
+ '<p class="sub"><\p>' +
+ '<div class="field"><label>Name</label><input type="text" id="pName" placeholder="" value="'+escapeHtml(p.name)+'"></div>'+
+ '<div class="field"><label>City</label><input type="text" id="pLocation" placeholder="" list="knownLocs" value="'+escapeHtml(p.location)+'">'+
  '<datalist id="knownLocs">'+locs.map(function(l){ return '<option value="'+escapeHtml(l)+'">'; }).join('')+'</datalist>'+
  '</div>'+
  '<div class="row-2">'+
@@ -712,7 +712,6 @@
  '<div class="field"><label>Who is part of this?</label>'+
  '<div id="participantList"></div>'+
  '<button type="button" class="add-person" id="addPersonBtn">+ Add person</button>'+
- '<div class="hint-inline">The first name is you. Add everyone you want to share this with.</div>'+
  '</div>'+
  '<div class="modal-actions">'+
  (existing?'<button class="btn btn-danger" id="deletePeriodBtn" style="margin-right:auto">Delete</button>':'')+
@@ -1176,8 +1175,8 @@
  (existing?'':'<p class="sub">Pick something from your date ideas, or make up your own.</p>')+
  previewHtml+
  '<div class="field"><label>Date idea</label><select id="dateIdea">'+ideaOptions+'</select></div>'+
- '<div class="field"><label>Or make your own</label><input type="text" id="dateCustomTitle" placeholder="e.g. Dinner by the water" value="'+escapeHtml(customTitle)+'"></div>'+
- '<div class="field"><label>Notes <span style="font-weight:400;opacity:.6">(optional)</span></label><textarea id="dateNotes" placeholder="Reservation info, what to bring...">'+escapeHtml(d.notes||'')+'</textarea></div>'+
+ '<div class="field"><label>Or make your own</label><input type="text" id="dateCustomTitle" placeholder="" value="'+escapeHtml(customTitle)+'"></div>'+
+ '<div class="field"><label>Notes <span style="font-weight:400;opacity:.6">(optional)</span></label><textarea id="dateNotes" placeholder="">'+escapeHtml(d.notes||'')+'</textarea></div>'+
  '<div class="modal-actions">'+
  (existing?'<button class="btn btn-danger" id="deleteDateBtn" style="margin-right:auto">Remove</button>':'')+
  '<button class="btn" id="cancelDateBtn">Cancel</button>'+
@@ -1230,7 +1229,7 @@
  if(!total){
  el.innerHTML = '<div class="empty-state">'+
  '<h3>Nothing on the calendar yet</h3>'+
- '<p>Switch to “Turn into a date,” then drag across a stretch of time everyone is free — it will ask what the date is for as soon as you let go.</p>'+
+ '<p>Switch to “Turn into a date,” then drag across a stretch of time we\'re both free.</p>'+
  '</div>';
  return;
  }
@@ -1272,12 +1271,12 @@
  var locs = collectKnownLocations();
  openModal(
  '<h2>'+(existing?'Edit idea':'Add a date idea')+'</h2>'+
- '<div class="field"><label>Title</label><input type="text" id="ideaTitle" placeholder="e.g. Picnic at the botanical garden" value="'+escapeHtml(i.title)+'"></div>'+
- '<div class="field"><label>City (optional)</label><input type="text" id="ideaLocation" placeholder="Leave blank if it works anywhere" list="ideaLocs" value="'+escapeHtml(i.location||'')+'">'+
+ '<div class="field"><label>Title</label><input type="text" id="ideaTitle" placeholder="" value="'+escapeHtml(i.title)+'"></div>'+
+ '<div class="field"><label>City (optional)</label><input type="text" id="ideaLocation" placeholder="" list="ideaLocs" value="'+escapeHtml(i.location||'')+'">'+
  '<datalist id="ideaLocs">'+locs.map(function(l){ return '<option value="'+escapeHtml(l)+'">'; }).join('')+'</datalist>'+
- '<div class="hint-inline">Only shows up as an option for dates in that city. Leave blank to use it anywhere.</div>'+
+ '<div class="hint-inline"></div>'+
  '</div>'+
- '<div class="field"><label>Notes (optional)</label><textarea id="ideaDesc" placeholder="Any details worth remembering">'+escapeHtml(i.description||'')+'</textarea></div>'+
+ '<div class="field"><label>Notes (optional)</label><textarea id="ideaDesc" placeholder="">'+escapeHtml(i.description||'')+'</textarea></div>'+
  '<div class="modal-actions">'+
  (existing?'<button class="btn btn-danger" id="deleteIdeaBtn" style="margin-right:auto">Remove</button>':'')+
  '<button class="btn" id="cancelIdeaBtn">Cancel</button>'+
@@ -1342,7 +1341,7 @@
  if(!state.ideas.length){
  el.innerHTML = '<div class="empty-state">'+
  '<h3>No ideas yet</h3>'+
- '<p>Keep a running list of things you want to do together, and pull them into a date once you have found the time.</p>'+
+ '<p>A running list of things to do together. Can pull into scheduled dates!</p>'+
  '</div>';
  return;
  }
