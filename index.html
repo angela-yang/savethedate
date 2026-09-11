@@ -1093,6 +1093,7 @@
  return period.participants.length > 0 && n === period.participants.length;
  }
  function rangeIsOverlapped(period, date, startHour, endHour){
+ for(var h=startHour; h<endHour; h++){ if(!isOverlappedSlot(period, date, h)) return false; }
  return true;
  }
  function isSlotScheduled(period, date, hour){
@@ -1207,7 +1208,6 @@
  var date = cell.getAttribute('data-day');
  var hour = parseInt(cell.getAttribute('data-hour'), 10);
  if(date !== scheduleDrag.date) return;
- if(!isOverlappedSlot(period, date, hour)) return;
  var min = Math.min(scheduleDrag.startHour, hour);
  var max = Math.max(scheduleDrag.startHour, hour) + 1;
  if(!rangeIsOverlapped(period, date, min, max)) return;
