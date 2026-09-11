@@ -1106,6 +1106,13 @@
  function isSlotScheduled(period, date, hour){
  return period.dates.some(function(d){ return d.date === date && hour >= d.startHour && hour < d.endHour; });
  }
+ function dateAtSlot(period, date, hour){
+ return period.dates.find(function(d){ return d.date === date && hour >= d.startHour && hour < d.endHour; }) || null;
+ }
+ function rangeHasScheduled(period, date, startHour, endHour){
+ for(var h=startHour; h<endHour; h++){ if(isSlotScheduled(period, date, h)) return true; }
+ return false;
+ }
  function slotBackground(period, date, hour){
  var names = slotParticipants(period, date, hour);
  if(names.length === 0) return 'rgba(255,255,255,0.035)';
@@ -1217,6 +1224,7 @@
  if(date !== scheduleDrag.date) return;
  var min = Math.min(scheduleDrag.startHour, hour);
  var max = Math.max(scheduleDrag.startHour, hour) + 1;
+ if(rangeHasScheduled(period, date, min, max)) return;
  scheduleDrag.minHour = min; scheduleDrag.maxHour = max;
  paintScheduleSelection(period);
  }
@@ -1238,6 +1246,8 @@
  paintCell(period, date, hour);
  return;
  }
+ var existingDate = dateAtSlot(period, date, hour);
+ if(existingDate){ showDateModal(period, existingDate, null); return; }
  dragging = true;
  scheduleDrag = { date:date, startHour:hour, minHour:hour, maxHour:hour+1 };
  paintScheduleSelection(period);
