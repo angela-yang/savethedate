@@ -1304,7 +1304,10 @@
  (idea.location ? ' (📍 '+escapeHtml(idea.location)+')' : '')+'</option>';
  });
 
- var customTitle = chosen.length ? '' : (d.title || '');
+ function ideaById(id){ return state.ideas.find(function(i){ return i.id === id; }) || null; }
+ var chosenIdeas = chosen.map(ideaById).filter(Boolean);
+ var initTitle = d.title || chosenIdeas.map(function(i){ return i.title; }).join(' + ');
+ var initNotes = d.notes || chosenIdeas.map(function(i){ return i.description; }).filter(Boolean).join('\n');
  var previewHtml = '<div class="date-preview"><strong>'+
  escapeHtml(formatDateTimeLabel(d.date, d.startHour, d.endHour))+
  '</strong><div>'+escapeHtml(period.name)+'</div></div>';
@@ -1313,9 +1316,9 @@
  '<h2>'+(existing?'Edit date':'What is this date for?')+'</h2>'+
  (existing?'':'<p class="sub">Pick something from your date ideas, or make up your own.</p>')+
  previewHtml+
- '<div class="field"><label>Date ideas <span style="font-weight:400;opacity:.6">(pick one or more — Ctrl/Cmd-click)</span></label><select id="dateIdea" multiple size="4">'+ideaOptions+'</select></div>'+
- '<div class="field"><label>Or make your own</label><input type="text" id="dateCustomTitle" placeholder="" value="'+escapeHtml(customTitle)+'"></div>'+
- '<div class="field"><label>Notes <span style="font-weight:400;opacity:.6">(optional)</span></label><textarea id="dateNotes" placeholder="">'+escapeHtml(d.notes||'')+'</textarea></div>'+
+ '<div class="field"><label>Date ideas <span style="font-weight:400;opacity:.6">(pick to fill in below)</span></label><select id="dateIdea" multiple size="4">'+ideaOptions+'</select></div>'+
+ '<div class="field"><label>Title</label><input type="text" id="dateCustomTitle" placeholder="What is this date?" value="'+escapeHtml(initTitle)+'"></div>'+
+ '<div class="field"><label>Notes …</label><textarea id="dateNotes">'+escapeHtml(initNotes)+'</textarea></div>'+
  '<div class="modal-actions">'+
  (existing?'<button class="btn btn-danger" id="deleteDateBtn" style="margin-right:auto">Remove</button>':'')+
  '<button class="btn" id="cancelDateBtn">Cancel</button>'+
@@ -1326,9 +1329,15 @@
  document.getElementById('cancelDateBtn').addEventListener('click', closeModal);
  var ideaSelect = document.getElementById('dateIdea');
  var customInput = document.getElementById('dateCustomTitle');
+ var notesInput = document.getElementById('dateNotes');
  function selectedIdeaIds(){ return Array.prototype.map.call(ideaSelect.selectedOptions, function(o){ return o.value; }); }
- ideaSelect.addEventListener('change', function(){ if(selectedIdeaIds().length) customInput.value = ''; });
- customInput.addEventListener('input', function(){ if(customInput.value.trim()){ Array.prototype.forEach.call(ideaSelect.options, function(o){ o.selected = false; }); } });
+ ideaSelect.addEventListener('change', function(){
+ var picked = selectedIdeaIds().map(ideaById).filter(Boolean);
+ if(!picked.length) return;
+ customInput.value = picked.map(function(p){ return p.title; }).join(' + ');
+ var descs = picked.map(function(p){ return p.description; }).filter(Boolean);
+ if(descs.length) notesInput.value = descs.join('\n');
+ });
 
  if(existing){
  document.getElementById('deleteDateBtn').addEventListener('click', function(){
@@ -1340,8 +1349,9 @@
 
  document.getElementById('saveDateBtn').addEventListener('click', function(){
  var ideaIds = selectedIdeaIds();
- var customTitleValue = customInput.value.trim();
- if(!ideaIds.length && !customTitleValue){ alert('Choose a date idea or describe what the date is for.'); return; }
+ var titleValue = customInput.value.trim();
+ var notesValue = notesInput.value.trim();
+ if(!titleValue && !ideaIds.length){alert('Add a title or choose a date idea.'); return;}
  var id = existing ? existing.id : uid();
  // unlink ideas that were on this date but are no longer selected
  state.ideas.forEach(function(idea){ if(idea.dateId === id && ideaIds.indexOf(idea.id) === -1) idea.dateId = null; });
@@ -1349,8 +1359,8 @@
  ideaIds.forEach(function(iid){ var idea = state.ideas.find(function(i){ return i.id === iid; }); if(idea) idea.dateId = id; });
  var record = {
  id:id, date:d.date, startHour:d.startHour, endHour:d.endHour,
- title: ideaIds.length ? '' : customTitleValue,
- notes: document.getElementById('dateNotes').value.trim(),
+ title: titleValue,
+ notes: notesValue,
  ideaIds: ideaIds
  };
  if(existing){
