@@ -1093,7 +1093,6 @@
  return period.participants.length > 0 && n === period.participants.length;
  }
  function rangeIsOverlapped(period, date, startHour, endHour){
- for(var h=startHour; h<endHour; h++){ if(!isOverlappedSlot(period, date, h)) return false; }
  return true;
  }
  function isSlotScheduled(period, date, hour){
