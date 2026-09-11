@@ -4,6 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Save the Date</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='6' y='14' width='88' height='80' rx='14' fill='%237C93E8'/%3E%3Crect x='6' y='14' width='88' height='22' rx='14' fill='%231B2138'/%3E%3Crect x='24' y='6' width='10' height='22' rx='5' fill='%231B2138'/%3E%3Crect x='66' y='6' width='10' height='22' rx='5' fill='%231B2138'/%3E%3Cpath d='M50 84c-14-9-24-18-24-30 0-8 6-13 13-13 5 0 9 3 11 7 2-4 6-7 11-7 7 0 13 5 13 13 0 12-10 21-24 30z' fill='%23FBF7F0'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='6' y='14' width='88' height='80' rx='14' fill='%237C93E8'/%3E%3Crect x='6' y='14' width='88' height='22' rx='14' fill='%231B2138'/%3E%3Cpath d='M50 84c-14-9-24-18-24-30 0-8 6-13 13-13 5 0 9 3 11 7 2-4 6-7 11-7 7 0 13 5 13 13 0 12-10 21-24 30z' fill='%23FBF7F0'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
@@ -508,6 +510,8 @@
  <div class="modal" id="modalBody"></div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
 (function(){
 
@@ -515,6 +519,17 @@
  var LS_STATE = 'savethedate-state-v2';
  var LS_ME = 'savethedate-me-v2';
  var LS_ACTIVE = 'savethedate-active-v2';
+
+ var SUPABASE_URL = "https://rmrixqfiewmfhtobujhg.supabase.co/rest/v1/";
+ var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJtcml4cWZpZXdtZmh0b2J1amhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkxMDg2ODksImV4cCI6MjEwNDY4NDY4OX0.2huDMfkhHoHfn_YD2Lb5omqv3RvZ1rE9G04MqP0sLdA";
+ var sb = null;
+ function initSupabase(){
+ try{
+ if(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase){
+ sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+ }
+ }catch(e){ console.error('Supabase init failed', e); sb = null; }
+ }
 
  var PALETTE = ['#8B6FD9','#D8703A','#4FA6A0','#E2637A','#5B8DEF','#C9A227','#6BBF59','#D46FB0'];
  var DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
@@ -615,6 +630,78 @@
  }
  });
 
+ /* ---------- live sync helpers (Supabase, one row per shared period) ---------- */
+ function linkedIdeasFor(period){
+ var ids = {};
+ (period.dates||[]).forEach(function(d){ (d.ideaIds || (d.ideaId ? [d.ideaId] : [])).forEach(function(iid){ ids[iid] = 1; }); });
+ return state.ideas.filter(function(i){ return ids[i.id]; });
+ }
+ function periodToCloud(p){
+ return {
+ id:p.id, name:p.name||'', location:p.location||'',
+ startDate:p.startDate||'', endDate:p.endDate||'',
+ startHour:p.startHour, endHour:p.endHour,
+ participants:p.participants||[], colors:p.colors||{},
+ availability:p.availability||{},
+ dates:(p.dates||[]).map(function(d){
+ return { id:d.id, date:d.date, startHour:d.startHour, endHour:d.endHour,
+ title:d.title||'', notes:d.notes||'', ideaIds: d.ideaIds || (d.ideaId ? [d.ideaId] : []) };
+ }),
+ ideas:linkedIdeasFor(p).map(function(i){
+ return { id:i.id, title:i.title||'', description:i.description||'', location:i.location||'', dateId:i.dateId||null };
+ })
+ };
+ }
+ function applyCloudToPeriod(p, cloud){
+ p.name = cloud.name || ''; p.location = cloud.location || '';
+ p.startDate = cloud.startDate; p.endDate = cloud.endDate;
+ p.startHour = cloud.startHour; p.endHour = cloud.endHour;
+ p.participants = cloud.participants || [];
+ p.colors = cloud.colors || {};
+ p.availability = cloud.availability || {};
+ p.dates = cloud.dates || [];
+ (cloud.ideas || []).forEach(function(idea){
+ var i = state.ideas.findIndex(function(x){ return x.id === idea.id; });
+ if(i === -1) state.ideas.push(idea); else state.ideas[i] = idea;
+ });
+ }
+ var cloudTimers = {};
+ function writeAll(p){
+ if(!sb || !p || !p.roomId) return;
+ clearTimeout(cloudTimers[p.roomId]);
+ cloudTimers[p.roomId] = setTimeout(function(){
+ sb.from('periods').upsert({ id:p.roomId, data:periodToCloud(p) }).then(function(res){
+ if(res && res.error) console.error('sync write failed', res.error);
+ });
+ }, 150);
+ }
+ /* each device merges the whole period, so availability writes go through the same path */
+ function syncMyAvailability(p){ writeAll(p); }
+ function syncAllRooms(){ state.periods.forEach(function(p){ if(p.roomId) writeAll(p); }); }
+ var subscribed = {};
+ function applyRoomRow(roomId, cloud){
+ if(!cloud || dragging) return;
+ var p = state.periods.find(function(x){ return x.roomId === roomId; });
+ if(!p) return;
+ applyCloudToPeriod(p, cloud);
+ save();
+ renderAll();
+ }
+ function subscribeRoom(roomId){
+ if(!sb || !roomId || subscribed[roomId]) return;
+ subscribed[roomId] = true;
+ sb.channel('room-'+roomId)
+ .on('postgres_changes', { event:'*', schema:'public', table:'periods', filter:'id=eq.'+roomId }, function(payload){
+ applyRoomRow(roomId, payload['new'] && payload['new'].data);
+ })
+ .subscribe();
+ // pull the current row once on (re)subscribe, in case we missed changes while away
+ sb.from('periods').select('data').eq('id', roomId).maybeSingle().then(function(res){
+ if(res && res.data && res.data.data) applyRoomRow(roomId, res.data.data);
+ });
+ }
+ function subscribeAllRooms(){ state.periods.forEach(function(p){ if(p.roomId) subscribeRoom(p.roomId); }); }
+
  /* ---------- modal ---------- */
  var overlay = document.getElementById('overlay');
  var modalBody = document.getElementById('modalBody');
@@ -696,7 +783,6 @@
 
  openModal(
  '<h2>'+(existing?'Edit period':'New date period')+'</h2>'+
- '<p class="sub"><\p>' +
  '<div class="field"><label>Name</label><input type="text" id="pName" placeholder="" value="'+escapeHtml(p.name)+'"></div>'+
  '<div class="field"><label>City</label><input type="text" id="pLocation" placeholder="" list="knownLocs" value="'+escapeHtml(p.location)+'">'+
  '<datalist id="knownLocs">'+locs.map(function(l){ return '<option value="'+escapeHtml(l)+'">'; }).join('')+'</datalist>'+
@@ -808,7 +894,7 @@
  });
  activePeriodId = id;
  }
- save(); closeModal(); renderAll();
+ save(); writeAll(existing || getPeriod(activePeriodId)); closeModal(); renderAll();
  });
  }
 
@@ -822,19 +908,29 @@
  function buildShareLink(period){
  // include only ideas referenced by this period's dates
  var ideaIds = {};
- period.dates.forEach(function(d){ if(d.ideaId) ideaIds[d.ideaId] = 1; });
+ period.dates.forEach(function(d){ (d.ideaIds || (d.ideaId ? [d.ideaId] : [])).forEach(function(iid){ ideaIds[iid] = 1; }); });
  var linkedIdeas = state.ideas.filter(function(i){ return ideaIds[i.id]; });
  var payload = { v:2, period: period, ideas: linkedIdeas };
  var base = location.href.split('#')[0];
  return base + '#p=' + encodePayload(payload);
  }
  function showShareModal(period){
- var link = buildShareLink(period);
+ var link, note;
+ var others = escapeHtml(period.participants.filter(function(n){return n!==period.myName;}).join(', ') || 'the others');
+ if(sb){
+ if(!period.roomId) period.roomId = uid();
+ writeAll(period);
+ subscribeRoom(period.roomId);
+ save();
+ link = location.href.split('#')[0] + '#room=' + period.roomId;
+ note = 'Send this link to '+others+'. The two calendars will stay in sync live, Can see each other’s free time, ideas, and scheduled dates as they change.';
+ } else {
+ link = buildShareLink(period);
+ note = 'Send this link to '+others+'. When they open it they pick who they are, and their times save on their device. Anything they add and re-share comes back the same way. (Turn on live sync in the code for automatic two-way updates.)';
+ }
  openModal(
  '<h2>Share “'+escapeHtml(period.name)+'”</h2>'+
- '<p class="sub">Send this link to '+
- escapeHtml(period.participants.filter(function(n){return n!==period.myName;}).join(', ') || 'the others')+
- '. When they open it they pick who they are, and their times save on their device. Anything they add and re-share comes back the same way.</p>'+
+ '<p class="sub">'+note+'</p>'+
  '<div class="field"><label>Shareable link</label>'+
  '<div class="share-link"><input type="text" id="shareLinkInput" readonly value="'+escapeHtml(link)+'"><button class="btn btn-accent btn-sm" id="copyLinkBtn">Copy</button></div>'+
  '<div class="copied-note" id="copiedNote"></div>'+
@@ -894,8 +990,36 @@
  save();
  return getPeriod(incoming.id);
  }
+ function joinRoom(roomId){
+ sb.from('periods').select('data').eq('id', roomId).maybeSingle().then(function(res){
+ if(res && res.error){ console.error(res.error); alert('Could not open that shared calendar.'); return; }
+ var cloud = res && res.data && res.data.data;
+ if(!cloud){ alert('Could not find that shared calendar. Ask for a fresh link.'); return; }
+ var metaId = cloud.id || roomId;
+ var p = state.periods.find(function(x){ return x.id === metaId || x.roomId === roomId; });
+ if(!p){
+ p = { id:metaId, roomId:roomId, myName:null, participants:[], colors:{}, availability:{}, dates:[], startHour:9, endHour:23 };
+ state.periods.push(p);
+ } else { p.roomId = roomId; }
+ applyCloudToPeriod(p, cloud);
+ activePeriodId = p.id;
+ save();
+ subscribeRoom(roomId);
+ renderAll();
+ if(!p.myName || p.participants.indexOf(p.myName) === -1){
+ showPickIdentityModal(p, function(){ syncMyAvailability(p); });
+ }
+ });
+ }
  function handleShareHash(){
  var hash = location.hash || '';
+ var roomM = hash.match(/[#&]room=([^&]+)/);
+ if(roomM){
+ history.replaceState(null, '', location.href.split('#')[0]);
+ if(!sb){ alert('This link is a live-sync calendar, but live sync is not configured in this copy of the app. Ask the sender to enable it, or use a snapshot link.'); return false; }
+ joinRoom(roomM[1]);
+ return true;
+ }
  var m = hash.match(/[#&]p=([^&]+)/);
  if(!m) return false;
  var payload;
@@ -999,7 +1123,7 @@
  el.innerHTML =
  '<div class="empty-state">'+
  '<h3>Start a date period</h3>'+
- '<p>Create a period for the next time you are in the same city — name it, list who is part of it, pick a date range — then mark free time and share it.</p>'+
+ '<p></p>'+
  '<button class="btn btn-accent" id="setupPeriodBtn">Create a period</button>'+
  '</div>';
  document.getElementById('setupPeriodBtn').addEventListener('click', function(){
@@ -1139,7 +1263,7 @@
  if(!dragging) return;
  dragging = false;
  var period = activePeriod();
- if(mode === 'mark'){ save(); return; }
+ if(mode === 'mark'){ save(); syncMyAvailability(period); return; }
  if(mode === 'schedule' && scheduleDrag){
  var sd = scheduleDrag; scheduleDrag = null;
  document.querySelectorAll('.cell.pending-select').forEach(function(c){ c.classList.remove('pending-select'); });
@@ -1152,20 +1276,21 @@
  /* ---------- date modal ---------- */
  function showDateModal(period, existing, prefill){
  if(!period){ alert('Pick a period first.'); return; }
- var d = existing || prefill || { date:'', startHour:9, endHour:10, title:'', notes:'', ideaId:null };
+ var d = existing || prefill || { date:'', startHour:9, endHour:10, title:'', notes:'', ideaIds:[] };
+ var chosen = d.ideaIds || (d.ideaId ? [d.ideaId] : []);
 
- var ideaOptions = '<option value="">Choose a date idea…</option>';
+ var ideaOptions = '';
  state.ideas.filter(function(idea){
  var free = !idea.dateId || idea.dateId === (existing ? existing.id : null);
  var locOk = !idea.location || normalizeLoc(idea.location) === normalizeLoc(period.location);
  return free && locOk;
  }).forEach(function(idea){
- var selected = d.ideaId === idea.id ? ' selected' : '';
+ var selected = chosen.indexOf(idea.id) !== -1 ? ' selected' : '';
  ideaOptions += '<option value="'+idea.id+'"'+selected+'>'+escapeHtml(idea.title)+
  (idea.location ? ' (📍 '+escapeHtml(idea.location)+')' : '')+'</option>';
  });
 
- var customTitle = d.ideaId ? '' : (d.title || '');
+ var customTitle = chosen.length ? '' : (d.title || '');
  var previewHtml = '<div class="date-preview"><strong>'+
  escapeHtml(formatDateTimeLabel(d.date, d.startHour, d.endHour))+
  '</strong><div>'+escapeHtml(period.name)+'</div></div>';
@@ -1174,7 +1299,7 @@
  '<h2>'+(existing?'Edit date':'What is this date for?')+'</h2>'+
  (existing?'':'<p class="sub">Pick something from your date ideas, or make up your own.</p>')+
  previewHtml+
- '<div class="field"><label>Date idea</label><select id="dateIdea">'+ideaOptions+'</select></div>'+
+ '<div class="field"><label>Date ideas <span style="font-weight:400;opacity:.6">(pick one or more — Ctrl/Cmd-click)</span></label><select id="dateIdea" multiple size="4">'+ideaOptions+'</select></div>'+
  '<div class="field"><label>Or make your own</label><input type="text" id="dateCustomTitle" placeholder="" value="'+escapeHtml(customTitle)+'"></div>'+
  '<div class="field"><label>Notes <span style="font-weight:400;opacity:.6">(optional)</span></label><textarea id="dateNotes" placeholder="">'+escapeHtml(d.notes||'')+'</textarea></div>'+
  '<div class="modal-actions">'+
@@ -1187,29 +1312,32 @@
  document.getElementById('cancelDateBtn').addEventListener('click', closeModal);
  var ideaSelect = document.getElementById('dateIdea');
  var customInput = document.getElementById('dateCustomTitle');
- ideaSelect.addEventListener('change', function(){ if(ideaSelect.value) customInput.value = ''; });
- customInput.addEventListener('input', function(){ if(customInput.value.trim()) ideaSelect.value = ''; });
+ function selectedIdeaIds(){ return Array.prototype.map.call(ideaSelect.selectedOptions, function(o){ return o.value; }); }
+ ideaSelect.addEventListener('change', function(){ if(selectedIdeaIds().length) customInput.value = ''; });
+ customInput.addEventListener('input', function(){ if(customInput.value.trim()){ Array.prototype.forEach.call(ideaSelect.options, function(o){ o.selected = false; }); } });
 
  if(existing){
  document.getElementById('deleteDateBtn').addEventListener('click', function(){
  period.dates = period.dates.filter(function(x){ return x.id !== existing.id; });
  state.ideas.forEach(function(idea){ if(idea.dateId === existing.id) idea.dateId = null; });
- save(); closeModal(); renderAll();
+ save(); writeAll(period); closeModal(); renderAll();
  });
  }
 
  document.getElementById('saveDateBtn').addEventListener('click', function(){
- var ideaId = ideaSelect.value || null;
+ var ideaIds = selectedIdeaIds();
  var customTitleValue = customInput.value.trim();
- if(!ideaId && !customTitleValue){ alert('Choose a date idea or describe what the date is for.'); return; }
+ if(!ideaIds.length && !customTitleValue){ alert('Choose a date idea or describe what the date is for.'); return; }
  var id = existing ? existing.id : uid();
- state.ideas.forEach(function(idea){ if(idea.dateId === id && idea.id !== ideaId) idea.dateId = null; });
- if(ideaId){ var idea = state.ideas.find(function(i){ return i.id === ideaId; }); if(idea) idea.dateId = id; }
+ // unlink ideas that were on this date but are no longer selected
+ state.ideas.forEach(function(idea){ if(idea.dateId === id && ideaIds.indexOf(idea.id) === -1) idea.dateId = null; });
+ // link every selected idea to this date
+ ideaIds.forEach(function(iid){ var idea = state.ideas.find(function(i){ return i.id === iid; }); if(idea) idea.dateId = id; });
  var record = {
  id:id, date:d.date, startHour:d.startHour, endHour:d.endHour,
- title: ideaId ? '' : customTitleValue,
+ title: ideaIds.length ? '' : customTitleValue,
  notes: document.getElementById('dateNotes').value.trim(),
- ideaId: ideaId
+ ideaIds: ideaIds
  };
  if(existing){
  var index = period.dates.findIndex(function(x){ return x.id === existing.id; });
@@ -1217,7 +1345,7 @@
  } else {
  period.dates.push(record);
  }
- save(); closeModal(); renderAll();
+ save(); writeAll(period); closeModal(); renderAll();
  });
  }
 
@@ -1242,13 +1370,14 @@
  var headHtml = '<div class="period-group-head"><h3>'+escapeHtml(period.name)+'</h3><span class="meta">'+
  (period.location?escapeHtml(period.location)+' · ':'')+fmtDateShort(period.startDate)+'–'+fmtDateShort(period.endDate)+'</span></div>';
  var cardsHtml = items.map(function(d){
- var idea = d.ideaId ? state.ideas.find(function(i){ return i.id===d.ideaId; }) : null;
- var displayTitle = d.title || (idea ? idea.title : 'Open plan');
+ var ideaIds = d.ideaIds || (d.ideaId ? [d.ideaId] : []);
+ var ideaTitles = ideaIds.map(function(iid){ var i = state.ideas.find(function(x){ return x.id===iid; }); return i ? i.title : null; }).filter(Boolean);
+ var displayTitle = d.title || (ideaTitles.length ? ideaTitles.join(' + ') : 'Open plan');
  return '<div class="card">'+
  '<div class="main">'+
  '<div class="when">'+fmtDate(d.date)+' · '+fmtHourRange(d.startHour,d.endHour)+'</div>'+
  '<div class="title">'+escapeHtml(displayTitle)+'</div>'+
- (idea && d.title ? '<div class="idea-tag">💡 '+escapeHtml(idea.title)+'</div>' : '')+
+ (d.title && ideaTitles.length ? '<div class="idea-tag">💡 '+escapeHtml(ideaTitles.join(', '))+'</div>' : '')+
  (d.notes ? '<div class="notes">'+escapeHtml(d.notes)+'</div>' : '')+
  '</div>'+
  '<div class="actions"><button class="btn btn-sm edit-date" data-pid="'+period.id+'" data-id="'+d.id+'">Edit</button></div>'+
@@ -1287,7 +1416,7 @@
  if(existing){
  document.getElementById('deleteIdeaBtn').addEventListener('click', function(){
  state.ideas = state.ideas.filter(function(x){ return x.id !== existing.id; });
- save(); closeModal(); renderAll();
+ save(); syncAllRooms(); closeModal(); renderAll();
  });
  }
  document.getElementById('saveIdeaBtn').addEventListener('click', function(){
@@ -1297,7 +1426,7 @@
  if(!title){ alert('Give the idea a title.'); return; }
  if(existing){ existing.title = title; existing.description = desc; existing.location = location; }
  else { state.ideas.push({ id:uid(), title:title, description:desc, location:location, dateId:null }); }
- save(); closeModal(); renderAll();
+ save(); syncAllRooms(); closeModal(); renderAll();
  });
  }
  function findDate(dateId){
@@ -1311,7 +1440,7 @@
  var open = [];
  state.periods.forEach(function(p){
  if(idea.location && normalizeLoc(p.location) !== normalizeLoc(idea.location)) return;
- p.dates.forEach(function(d){ if(!d.ideaId) open.push({ period:p, date:d }); });
+ p.dates.forEach(function(d){ var ids = d.ideaIds || (d.ideaId ? [d.ideaId] : []); if(ids.indexOf(idea.id) === -1) open.push({ period:p, date:d }); });
  });
  if(!open.length){
  openModal('<h2>No matching open dates</h2><p class="sub">'+(idea.location ? 'There is no open date in '+escapeHtml(idea.location)+' yet.' : 'Every date already has a plan, or there are no dates yet.')+' Drag a stretch of shared free time in Availability to create one.</p><div class="modal-actions"><button class="btn btn-accent" id="okBtn">Got it</button></div>');
@@ -1331,8 +1460,11 @@
  var dateId = document.getElementById('assignSelect').value;
  idea.dateId = dateId;
  var found = findDate(dateId);
- if(found) found.date.ideaId = idea.id;
- save(); closeModal(); renderAll();
+ if(found){
+ found.date.ideaIds = found.date.ideaIds || (found.date.ideaId ? [found.date.ideaId] : []);
+ if(found.date.ideaIds.indexOf(idea.id) === -1) found.date.ideaIds.push(idea.id);
+ }
+ save(); if(found) writeAll(found.period); closeModal(); renderAll();
  });
  }
  function renderIdeas(){
@@ -1398,8 +1530,10 @@
 
  /* ---------- init ---------- */
  (function init(){
+ initSupabase();
  load();
- var imported = handleShareHash(); // if opened from a share link, import it
+ subscribeAllRooms(); // resume live sync for periods already shared
+ var imported = handleShareHash(); // if opened from a share link, import/join it
  if(!me && !imported){ showNameModal(); }
  renderAll();
  })();
