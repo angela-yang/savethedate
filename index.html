@@ -1279,7 +1279,7 @@
  var ideaOptions = '';
  state.ideas.filter(function(idea){
  var free = !idea.dateId || idea.dateId === (existing ? existing.id : null);
- var locOk = !idea.location || normalizeLoc(idea.location) === normalizeLoc(period.location);
+ var locOk = true;
  return free && locOk;
  }).forEach(function(idea){
  var selected = chosen.indexOf(idea.id) !== -1 ? ' selected' : '';
