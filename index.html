@@ -1210,7 +1210,6 @@
  if(date !== scheduleDrag.date) return;
  var min = Math.min(scheduleDrag.startHour, hour);
  var max = Math.max(scheduleDrag.startHour, hour) + 1;
- if(!rangeIsOverlapped(period, date, min, max)) return;
  scheduleDrag.minHour = min; scheduleDrag.maxHour = max;
  paintScheduleSelection(period);
  }
@@ -1232,7 +1231,6 @@
  paintCell(period, date, hour);
  return;
  }
- if(!isOverlappedSlot(period, date, hour)) return;
  dragging = true;
  scheduleDrag = { date:date, startHour:hour, minHour:hour, maxHour:hour+1 };
  paintScheduleSelection(period);
